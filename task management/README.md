@@ -82,31 +82,13 @@ lib/
 - Android Studio / Xcode (for mobile development)
 - Android SDK / iOS SDK
 
-### Setup Steps
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd task_mgmt
-   ```
-
-2. **Install dependencies**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Run the application**
-   ```bash
-   flutter run
-   ```
 
 ## Configuration
 
 ### Android Configuration
 The Android manifest includes necessary permissions for:
 - Notifications (`POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`)
-- File operations (`READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`)
-- Boot completion (for restarting notifications after device reboot)
 
 ### iOS Configuration
 For iOS, you'll need to add notification permissions in `Info.plist`:
@@ -194,74 +176,20 @@ For iOS, you'll need to add notification permissions in `Info.plist`:
 6. Test theme switching
 7. Test subtask management and progress tracking
 
-### Running Tests
-```bash
-flutter test
-```
 
-## Building the APK
 
-### Android APK
-```bash
-flutter build apk --release
-```
 
-The APK will be generated at: `build/app/outputs/flutter-apk/app-release.apk`
 
-### Android App Bundle (for Google Play)
-```bash
-flutter build appbundle --release
-```
 
-## Known Issues and Future Enhancements
-
-### Potential Enhancements
-- [ ] Task categories/tags
-- [ ] Task prioritization
-- [ ] Calendar view integration
-- [ ] Task search functionality
-- [ ] Backup and restore functionality
-- [ ] Cloud synchronization
-- [ ] Widget support for home screen
-- [ ] Multiple notification reminders
-- [ ] Task attachments
-- [ ] Collaboration features
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
 
 ## Authors
 
-- Your Name/Team
+- Muhammad Adeel
 
-## Acknowledgments
-
-- Flutter team for the amazing framework
-- All the package maintainers for their excellent work
-- The open-source community
 
 ## Support
 
 For issues, questions, or contributions, please open an issue on the GitHub repository.
 
-## Video Demonstration
-
-A video demonstration of the application should be included showing:
-- Task creation and management
-- Repeat task functionality
-- Notification scheduling
-- Export functionality
-- Theme customization
-- Progress tracking with subtasks
-
----
 
 **Note**: This application requires proper permissions for notifications and file access. Make sure to grant these permissions when prompted on first launch.
