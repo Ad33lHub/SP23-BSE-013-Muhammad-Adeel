@@ -4,6 +4,7 @@ import '../models/task.dart';
 import '../widgets/task_card.dart';
 import '../services/export_service.dart';
 import 'add_task_screen.dart';
+import '../widgets/custom_background_container.dart';
 
 class CompletedTasksScreen extends StatefulWidget {
   const CompletedTasksScreen({super.key});
@@ -115,71 +116,76 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Completed Tasks'),
-        actions: [
-          if (_tasks.isNotEmpty)
+    return CustomBackgroundContainer(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: const Text('Completed Tasks'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          actions: [
+            if (_tasks.isNotEmpty)
+              IconButton(
+                icon: const Icon(Icons.upload_file),
+                onPressed: _showExportDialog,
+                tooltip: 'Export',
+              ),
             IconButton(
-              icon: const Icon(Icons.upload_file),
-              onPressed: _showExportDialog,
-              tooltip: 'Export',
+              icon: const Icon(Icons.refresh),
+              onPressed: _loadTasks,
             ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadTasks,
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _tasks.isEmpty
+          ],
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _tasks.isEmpty
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        size: 64,
-                        color: Colors.grey[400],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No completed tasks',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey[600],
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.check_circle_outline,
+                          size: 64,
+                          color: Colors.grey[400],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+                        Text(
+                          'No completed tasks',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _loadTasks,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(8),
+                      itemCount: _tasks.length,
+                      itemBuilder: (context, index) {
+                        final task = _tasks[index];
+                        return TaskCard(
+                          task: task,
+                          onTap: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddTaskScreen(task: task),
+                              ),
+                            );
+                            if (result == true) {
+                              _loadTasks();
+                            }
+                          },
+                          onToggleComplete: () => _toggleTaskComplete(task),
+                          onDelete: () => _deleteTask(task),
+                        );
+                      },
+                    ),
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadTasks,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(8),
-                    itemCount: _tasks.length,
-                    itemBuilder: (context, index) {
-                      final task = _tasks[index];
-                      return TaskCard(
-                        task: task,
-                        onTap: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AddTaskScreen(task: task),
-                            ),
-                          );
-                          if (result == true) {
-                            _loadTasks();
-                          }
-                        },
-                        onToggleComplete: () => _toggleTaskComplete(task),
-                        onDelete: () => _deleteTask(task),
-                      );
-                    },
-                  ),
-                ),
+      ),
     );
   }
 }

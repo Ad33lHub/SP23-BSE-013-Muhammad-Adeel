@@ -5,7 +5,8 @@ import '../models/task.dart';
 import '../models/subtask.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
-import '../widgets/subtask_list.dart';
+import '../widgets/glass_widgets.dart';
+import '../theme/glassmorphism_theme.dart';
 
 class AddTaskScreen extends StatefulWidget {
   final Task? task;
@@ -30,7 +31,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   List<Subtask> _subtasks = [];
   bool _isLoading = false;
 
-  final List<String> _weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  final List<String> _weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   @override
   void initState() {
@@ -78,6 +79,19 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       initialDate: _selectedDate,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: GlassmorphismTheme.neonBlue,
+              onPrimary: Colors.white,
+              surface: GlassmorphismTheme.darkSurface,
+              onSurface: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       setState(() {
@@ -90,6 +104,19 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     final picked = await showTimePicker(
       context: context,
       initialTime: _selectedTime ?? TimeOfDay.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: GlassmorphismTheme.neonBlue,
+              onPrimary: Colors.white,
+              surface: GlassmorphismTheme.darkSurface,
+              onSurface: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       setState(() {
@@ -113,26 +140,57 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     final controller = TextEditingController();
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Subtask'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Subtask title',
-            hintText: 'Enter subtask title',
-          ),
-          autofocus: true,
+      builder: (context) => GlassContainer(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Add Subtask',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              style: Theme.of(context).textTheme.bodyLarge,
+              decoration: InputDecoration(
+                hintText: 'Enter subtask title',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GlassButton(
+                  onPressed: () => Navigator.pop(context),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  gradient: LinearGradient(
+                    colors: [Colors.white.withOpacity(0.1), Colors.white.withOpacity(0.05)],
+                  ),
+                  child: Text(
+                    'Cancel',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                GlassButton(
+                  onPressed: () => Navigator.pop(context, controller.text),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Text(
+                    'Add',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Add'),
-          ),
-        ],
       ),
     );
 
@@ -182,7 +240,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
     if (_repeatType == 'weekly' && _selectedDays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select at least one day for weekly repeat')),
+        SnackBar(
+          content: const Text('Please select at least one day for weekly repeat'),
+          backgroundColor: GlassmorphismTheme.darkSurface,
+        ),
       );
       return;
     }
@@ -204,7 +265,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
       Task task;
       if (widget.task != null) {
-        // Update existing task
         task = widget.task!.copyWith(
           title: _titleController.text,
           description: _descriptionController.text,
@@ -217,7 +277,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         );
         await _dbHelper.updateTask(task);
       } else {
-        // Create new task
         task = Task(
           title: _titleController.text,
           description: _descriptionController.text,
@@ -232,26 +291,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         task = task.copyWith(id: id);
       }
 
-      // Save subtasks
       for (final subtask in _subtasks) {
         if (subtask.id == null) {
           await _dbHelper.insertSubtask(subtask.copyWith(taskId: task.id!));
         }
       }
 
-      // Schedule notification (don't fail task save if notification fails)
       if (!task.isCompleted) {
         try {
           await _notificationService.updateTaskNotification(task);
         } catch (e) {
-          // Log error but don't prevent task from being saved
-          print('Warning: Failed to schedule notification: $e');
-          // Optionally show a non-blocking message
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Task saved, but notification scheduling failed'),
-                duration: Duration(seconds: 2),
+              SnackBar(
+                content: const Text('Task saved, but notification scheduling failed'),
+                backgroundColor: GlassmorphismTheme.darkSurface,
               ),
             );
           }
@@ -264,7 +318,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving task: $e')),
+          SnackBar(
+            content: Text('Error saving task: $e'),
+            backgroundColor: GlassmorphismTheme.darkSurface,
+          ),
         );
       }
     } finally {
@@ -286,8 +343,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: Text(widget.task == null ? 'Add Task' : 'Edit Task'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          widget.task == null ? 'Add Task' : 'Edit Task',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
         actions: [
           if (_isLoading)
             const Padding(
@@ -295,12 +358,22 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               child: SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(GlassmorphismTheme.neonBlue),
+                ),
               ),
             )
           else
             IconButton(
-              icon: const Icon(Icons.check),
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  gradient: GlassmorphismTheme.primaryGradient,
+                ),
+                child: const Icon(Icons.check, color: Colors.white, size: 20),
+              ),
               onPressed: _saveTask,
             ),
         ],
@@ -310,122 +383,345 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            TextFormField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                hintText: 'Enter task title',
-                border: OutlineInputBorder(),
+            GlassCard(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Task Details',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _titleController,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                    decoration: const InputDecoration(
+                      labelText: 'Title',
+                      hintText: 'Enter task title',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a title';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _descriptionController,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      hintText: 'Enter task description',
+                    ),
+                    maxLines: 3,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a description';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a title';
-                }
-                return null;
-              },
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                hintText: 'Enter task description',
-                border: OutlineInputBorder(),
+            GlassCard(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Schedule',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  InkWell(
+                    onTap: _selectDate,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: GlassmorphismTheme.glassWhite.withOpacity(0.2),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.calendar_today, color: GlassmorphismTheme.neonBlue),
+                          const SizedBox(width: 12),
+                          Text(
+                            DateFormat('MMM dd, yyyy').format(_selectedDate),
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  InkWell(
+                    onTap: _selectTime,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: GlassmorphismTheme.glassWhite.withOpacity(0.2),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.access_time, color: GlassmorphismTheme.neonBlue),
+                          const SizedBox(width: 12),
+                          Text(
+                            _selectedTime != null
+                                ? _selectedTime!.format(context)
+                                : 'No time set',
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: _selectedTime != null ? Colors.white : Colors.white38,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              maxLines: 3,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a description';
-                }
-                return null;
-              },
             ),
             const SizedBox(height: 16),
-            ListTile(
-              title: const Text('Due Date'),
-              subtitle: Text(DateFormat('MMM dd, yyyy').format(_selectedDate)),
-              trailing: const Icon(Icons.calendar_today),
-              onTap: _selectDate,
-            ),
-            ListTile(
-              title: const Text('Due Time (Optional)'),
-              subtitle: Text(
-                _selectedTime != null
-                    ? _selectedTime!.format(context)
-                    : 'No time set',
+            GlassCard(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Repeat',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildRepeatOption('none', 'None'),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildRepeatOption('daily', 'Daily'),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildRepeatOption('weekly', 'Weekly'),
+                      ),
+                    ],
+                  ),
+                  if (_repeatType == 'weekly') ...[
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: List.generate(7, (index) {
+                        final day = index + 1;
+                        final isSelected = _selectedDays.contains(day);
+                        return InkWell(
+                          onTap: () => _toggleDaySelection(day),
+                          borderRadius: BorderRadius.circular(12),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              gradient: isSelected
+                                  ? LinearGradient(
+                                      colors: [
+                                        GlassmorphismTheme.neonBlue.withOpacity(0.3),
+                                        GlassmorphismTheme.neonPurple.withOpacity(0.3),
+                                      ],
+                                    )
+                                  : null,
+                              border: Border.all(
+                                color: isSelected
+                                    ? GlassmorphismTheme.neonBlue
+                                    : GlassmorphismTheme.glassWhite.withOpacity(0.2),
+                              ),
+                            ),
+                            child: Text(
+                              _weekDays[index],
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                color: isSelected
+                                    ? GlassmorphismTheme.neonBlue
+                                    : Colors.white70,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ],
+                ],
               ),
-              trailing: const Icon(Icons.access_time),
-              onTap: _selectTime,
             ),
-            const Divider(),
-            const Text(
-              'Repeat',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(value: 'none', label: Text('None')),
-                ButtonSegment(value: 'daily', label: Text('Daily')),
-                ButtonSegment(value: 'weekly', label: Text('Weekly')),
-              ],
-              selected: {_repeatType},
-              onSelectionChanged: (Set<String> selection) {
-                setState(() {
-                  _repeatType = selection.first;
-                  if (_repeatType != 'weekly') {
-                    _selectedDays.clear();
-                  }
-                });
-              },
-            ),
-            if (_repeatType == 'weekly') ...[
-              const SizedBox(height: 16),
-              const Text('Select Days:'),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                children: List.generate(7, (index) {
-                  final day = index + 1;
-                  final isSelected = _selectedDays.contains(day);
-                  return FilterChip(
-                    label: Text(_weekDays[index]),
-                    selected: isSelected,
-                    onSelected: (_) => _toggleDaySelection(day),
-                  );
-                }),
+            const SizedBox(height: 16),
+            GlassCard(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Subtasks',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      GlassButton(
+                        onPressed: _addSubtask,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.add, size: 18, color: Colors.white),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Add',
+                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_subtasks.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'No subtasks. Tap "Add" to add one.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.white38,
+                        ),
+                      ),
+                    )
+                  else
+                    ..._subtasks.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final subtask = entry.value;
+                      return GlassContainer(
+                        margin: const EdgeInsets.only(top: 8),
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () => _toggleSubtask(index),
+                              child: Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: subtask.isCompleted
+                                        ? GlassmorphismTheme.neonBlue
+                                        : Colors.white38,
+                                    width: 2,
+                                  ),
+                                  gradient: subtask.isCompleted
+                                      ? LinearGradient(
+                                          colors: [
+                                            GlassmorphismTheme.neonBlue,
+                                            GlassmorphismTheme.neonPurple,
+                                          ],
+                                        )
+                                      : null,
+                                ),
+                                child: subtask.isCompleted
+                                    ? const Icon(Icons.check, color: Colors.white, size: 16)
+                                    : null,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                subtask.title,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  decoration: subtask.isCompleted
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                  color: subtask.isCompleted ? Colors.white38 : Colors.white,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Color(0xFFFF6B6B), size: 20),
+                              onPressed: () => _deleteSubtask(index),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                ],
               ),
-            ],
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Subtasks',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                TextButton.icon(
-                  onPressed: _addSubtask,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add Subtask'),
-                ),
-              ],
             ),
-            if (_subtasks.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  'No subtasks. Tap "Add Subtask" to add one.',
-                  style: TextStyle(color: Colors.grey),
+            const SizedBox(height: 32),
+            GlassButton(
+              onPressed: _saveTask,
+              isLoading: _isLoading,
+              child: Text(
+                widget.task == null ? 'Create Task' : 'Update Task',
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
                 ),
-              )
-            else
-              SubtaskList(
-                subtasks: _subtasks,
-                onToggle: _toggleSubtask,
-                onDelete: _deleteSubtask,
               ),
+            ),
+            const SizedBox(height: 32),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRepeatOption(String value, String label) {
+    final isSelected = _repeatType == value;
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _repeatType = value;
+          if (value != 'weekly') {
+            _selectedDays.clear();
+          }
+        });
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: isSelected
+              ? LinearGradient(
+                  colors: [
+                    GlassmorphismTheme.neonBlue.withOpacity(0.3),
+                    GlassmorphismTheme.neonPurple.withOpacity(0.3),
+                  ],
+                )
+              : null,
+          border: Border.all(
+            color: isSelected
+                ? GlassmorphismTheme.neonBlue
+                : GlassmorphismTheme.glassWhite.withOpacity(0.2),
+          ),
+        ),
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: isSelected ? GlassmorphismTheme.neonBlue : Colors.white70,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          ),
         ),
       ),
     );

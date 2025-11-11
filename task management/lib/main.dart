@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/add_task_screen.dart';
+import 'theme/glassmorphism_theme.dart';
+import 'widgets/glass_widgets.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,24 +23,15 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Task Management',
             debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.blue,
-                brightness: Brightness.light,
-              ),
-              useMaterial3: true,
+            theme: GlassmorphismTheme.darkTheme,
+            themeMode: ThemeMode.dark, // Force dark theme for glassmorphism
+            home: const GlassBackground(
+              child: HomeScreen(),
             ),
-            darkTheme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.blue,
-                brightness: Brightness.dark,
-              ),
-              useMaterial3: true,
-            ),
-            themeMode: themeProvider.themeMode,
-            home: const HomeScreen(),
             routes: {
-              '/add-task': (context) => const AddTaskScreen(),
+              '/add-task': (context) => const GlassBackground(
+                    child: AddTaskScreen(),
+                  ),
             },
           );
         },
