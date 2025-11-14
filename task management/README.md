@@ -1,3 +1,6 @@
+<img width="1284" height="2778" alt="image" src="https://github.com/user-attachments/assets/4c28905f-ef3d-4368-9684-5c9fa64219a6" />
+
+
 # Task Management Application
 
 A comprehensive Flutter-based task management application with SQLite database, local notifications, and export functionality. This application allows users to manage their daily tasks effectively through features like task addition, modification, deletion, categorization, and custom notifications.
