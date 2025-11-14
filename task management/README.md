@@ -1,5 +1,15 @@
 <img width="1284" height="2778" alt="image" src="https://github.com/user-attachments/assets/4c28905f-ef3d-4368-9684-5c9fa64219a6" />
 
+<img width="1284" height="2778" alt="image" src="https://github.com/user-attachments/assets/da2375ac-020f-4486-8398-a0422efaf88c" />
+
+<img width="1284" height="2778" alt="image" src="https://github.com/user-attachments/assets/b8118f88-8384-49cc-9ee5-4616561b949a" />
+
+<img width="1284" height="2778" alt="image" src="https://github.com/user-attachments/assets/98384e8a-eef8-44ac-b3c8-4745389627a7" />
+
+<img width="1284" height="2778" alt="image" src="https://github.com/user-attachments/assets/1903ece3-b606-4642-8e30-caeaa6f507e7" />
+
+<img width="1284" height="2778" alt="image" src="https://github.com/user-attachments/assets/9ef59473-c5fc-4c50-8644-865774dcf622" />
+
 
 # Task Management Application
 
