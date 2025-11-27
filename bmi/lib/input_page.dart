@@ -19,20 +19,21 @@ enum Gender{
 }
 
 class _InputPageState extends State<InputPage> {
-  Color maleColor = deactivecolor;
-  Color femaleColor = deactivecolor;
+
+  Gender? selectedGender;
 
 
-
-  void UpdateColor(Gender gendertype) {
-    if (gendertype == Gender.male) {
-      maleColor = activecolor;
-      femaleColor = deactivecolor;
-    } else if (gendertype == Gender.female) {
-      femaleColor = activecolor;
-      maleColor = deactivecolor;
-    } else {}
-  }
+  // Color maleColor = deactivecolor;
+  // Color femaleColor = deactivecolor;
+  // void UpdateColor(Gender gendertype) {
+  //   if (gendertype == Gender.male) {
+  //     maleColor = activecolor;
+  //     femaleColor = deactivecolor;
+  //   } else if (gendertype == Gender.female) {
+  //     femaleColor = activecolor;
+  //     maleColor = deactivecolor;
+  //   } else {}
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +48,13 @@ class _InputPageState extends State<InputPage> {
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        UpdateColor(Gender.male);
+                        selectedGender = Gender.male;
                       });
                     },
                     child: RepeatContainerCode(
-                      colour: maleColor,
+                      colour: selectedGender == Gender.male
+                          ? activecolor
+                          : deactivecolor,
                       cardWidget: CardWidget(
                         iconData: FontAwesomeIcons.male,
                         label: 'Male',
@@ -63,11 +66,13 @@ class _InputPageState extends State<InputPage> {
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        UpdateColor(Gender.female);
+                        selectedGender = Gender.female;
                       });
                     },
                     child: RepeatContainerCode(
-                      colour: femaleColor,
+                      colour: selectedGender == Gender.female
+                          ? activecolor
+                          : deactivecolor,
                       cardWidget: CardWidget(
                         iconData: FontAwesomeIcons.female,
                         label: 'Female',
