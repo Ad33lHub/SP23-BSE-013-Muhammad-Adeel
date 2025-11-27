@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'ContainerClass.dart';
 import 'icontext.dart';
-import 'container.dart';
 
 // ignore: use_key_in_widget_constructors
 class InputPage extends StatefulWidget {
@@ -45,13 +45,12 @@ class _InputPageState extends State<InputPage> {
             child: Row(
               children: <Widget>[
                 Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedGender = Gender.male;
-                      });
-                    },
                     child: RepeatContainerCode(
+                      onPressed: () {
+                        setState(() {
+                          selectedGender = Gender.male;
+                        });
+                      },
                       colour: selectedGender == Gender.male
                           ? activecolor
                           : deactivecolor,
@@ -60,16 +59,15 @@ class _InputPageState extends State<InputPage> {
                         label: 'Male',
                       ),
                     ),
-                  ),
+
                 ),
                 Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedGender = Gender.female;
-                      });
-                    },
                     child: RepeatContainerCode(
+                      onPressed: () {
+                        setState(() {
+                          selectedGender = Gender.female;
+                        });
+                      },
                       colour: selectedGender == Gender.female
                           ? activecolor
                           : deactivecolor,
@@ -78,7 +76,7 @@ class _InputPageState extends State<InputPage> {
                         label: 'Female',
                       ),
                     ),
-                  ),
+
                 ),
               ],
             ),
@@ -93,19 +91,13 @@ class _InputPageState extends State<InputPage> {
                 Expanded(
                   child: RepeatContainerCode(
                     colour: Color.fromARGB(255, 3, 9, 40),
-                    cardWidget: CardWidget(
-                      iconData: FontAwesomeIcons.male,
-                      label: 'Male',
-                    ),
+
                   ),
                 ),
                 Expanded(
                   child: RepeatContainerCode(
                     colour: Color.fromARGB(255, 3, 9, 40),
-                    cardWidget: CardWidget(
-                      iconData: FontAwesomeIcons.female,
-                      label: 'Female',
-                    ),
+
                   ),
                 ),
               ],
