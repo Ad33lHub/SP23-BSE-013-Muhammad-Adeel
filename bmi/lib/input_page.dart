@@ -13,16 +13,22 @@ class InputPage extends StatefulWidget {
 
 const activecolor = Color.fromARGB(255, 2, 5, 23);
 const deactivecolor = Color.fromARGB(255, 3, 9, 40);
+enum Gender{
+  male,
+  female,
+}
 
 class _InputPageState extends State<InputPage> {
   Color maleColor = deactivecolor;
   Color femaleColor = deactivecolor;
 
-  void UpdateColor(int gender) {
-    if (gender == 1) {
+
+
+  void UpdateColor(Gender gendertype) {
+    if (gendertype == Gender.male) {
       maleColor = activecolor;
       femaleColor = deactivecolor;
-    } else if (gender == 2) {
+    } else if (gendertype == Gender.female) {
       femaleColor = activecolor;
       maleColor = deactivecolor;
     } else {}
@@ -41,7 +47,7 @@ class _InputPageState extends State<InputPage> {
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        UpdateColor(1);
+                        UpdateColor(Gender.male);
                       });
                     },
                     child: RepeatContainerCode(
@@ -57,7 +63,7 @@ class _InputPageState extends State<InputPage> {
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        UpdateColor(2);
+                        UpdateColor(Gender.female);
                       });
                     },
                     child: RepeatContainerCode(
