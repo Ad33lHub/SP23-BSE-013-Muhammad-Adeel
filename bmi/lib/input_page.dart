@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names, library_private_types_in_public_api
 
+import 'package:bmi/ConstantFile.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'ContainerClass.dart';
@@ -11,8 +12,7 @@ class InputPage extends StatefulWidget {
   _InputPageState createState() => _InputPageState();
 }
 
-const activecolor = Color.fromARGB(255, 2, 5, 23);
-const deactivecolor = Color.fromARGB(255, 3, 9, 40);
+
 enum Gender{
   male,
   female,
@@ -40,6 +40,7 @@ class _InputPageState extends State<InputPage> {
     return Scaffold(
       appBar: AppBar(title: Text("BMI Calculator")),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Expanded(
             child: Row(
@@ -82,8 +83,14 @@ class _InputPageState extends State<InputPage> {
             ),
           ),
           Expanded(
-            flex: 2,
-            child: RepeatContainerCode(colour: Color.fromARGB(255, 3, 9, 40)),
+            child: RepeatContainerCode(
+                colour: Color.fromARGB(255, 3, 9, 40),
+                cardWidget:Column(
+                  children: <Widget>[
+                    Text('HIGHT',style: klabelstyle,),
+                  ],
+                ),
+            ),
           ),
           Expanded(
             child: Row(
@@ -91,13 +98,13 @@ class _InputPageState extends State<InputPage> {
                 Expanded(
                   child: RepeatContainerCode(
                     colour: Color.fromARGB(255, 3, 9, 40),
-
+                    cardWidget: Column(),
                   ),
                 ),
                 Expanded(
                   child: RepeatContainerCode(
                     colour: Color.fromARGB(255, 3, 9, 40),
-
+                      cardWidget: Column(),
                   ),
                 ),
               ],

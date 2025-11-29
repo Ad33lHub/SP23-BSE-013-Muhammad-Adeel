@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'ConstantFile.dart';
+
 class CardWidget extends StatelessWidget {
   final IconData iconData;
   final String label;
@@ -31,10 +33,7 @@ class CardWidget extends StatelessWidget {
               fit: BoxFit.scaleDown,
               child: Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 18.0,
-                  color: Colors.white,
-                ),
+                style: klabelstyle,
               ),
             ),
           ],
