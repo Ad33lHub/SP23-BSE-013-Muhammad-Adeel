@@ -17,6 +17,8 @@ enum Gender { male, female }
 class _InputPageState extends State<InputPage> {
   Gender? selectedGender;
   int sliderHight = 180;
+  int sliderWeight = 60;
+  int sliderAge = 20;
   // Color maleColor = deactivecolor;
   // Color femaleColor = deactivecolor;
   // void UpdateColor(Gender gendertype) {
@@ -114,7 +116,16 @@ class _InputPageState extends State<InputPage> {
                 Expanded(
                   child: RepeatContainerCode(
                     colour: Color.fromARGB(255, 3, 9, 40),
-                    cardWidget: Column(),
+                    cardWidget: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text('WEIGHT', style: klabelstyle),
+                        Text(
+                          sliderWeight.toString(),
+                          style: kNumberStyle,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(
