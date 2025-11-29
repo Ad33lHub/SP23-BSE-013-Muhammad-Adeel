@@ -13,7 +13,7 @@ class RepeatContainerCode extends StatelessWidget {
     Widget? cardWidget,
     this.onPressed,
     this.padding = const EdgeInsets.all(15.0),
-    this.margin = const EdgeInsets.all(15.0), this.child,
+    this.margin = const EdgeInsets.all(7.0), this.child,
   }) : cardWidget = cardWidget ?? const SizedBox.shrink();
 
   @override

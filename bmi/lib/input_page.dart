@@ -12,17 +12,11 @@ class InputPage extends StatefulWidget {
   _InputPageState createState() => _InputPageState();
 }
 
-
-enum Gender{
-  male,
-  female,
-}
+enum Gender { male, female }
 
 class _InputPageState extends State<InputPage> {
-
   Gender? selectedGender;
-
-
+  int sliderHight = 180;
   // Color maleColor = deactivecolor;
   // Color femaleColor = deactivecolor;
   // void UpdateColor(Gender gendertype) {
@@ -46,50 +40,72 @@ class _InputPageState extends State<InputPage> {
             child: Row(
               children: <Widget>[
                 Expanded(
-                    child: RepeatContainerCode(
-                      onPressed: () {
-                        setState(() {
-                          selectedGender = Gender.male;
-                        });
-                      },
-                      colour: selectedGender == Gender.male
-                          ? activecolor
-                          : deactivecolor,
-                      cardWidget: CardWidget(
-                        iconData: FontAwesomeIcons.male,
-                        label: 'Male',
-                      ),
+                  child: RepeatContainerCode(
+                    onPressed: () {
+                      setState(() {
+                        selectedGender = Gender.male;
+                      });
+                    },
+                    colour: selectedGender == Gender.male
+                        ? activecolor
+                        : deactivecolor,
+                    cardWidget: CardWidget(
+                      iconData: FontAwesomeIcons.male,
+                      label: 'Male',
                     ),
-
+                  ),
                 ),
                 Expanded(
-                    child: RepeatContainerCode(
-                      onPressed: () {
-                        setState(() {
-                          selectedGender = Gender.female;
-                        });
-                      },
-                      colour: selectedGender == Gender.female
-                          ? activecolor
-                          : deactivecolor,
-                      cardWidget: CardWidget(
-                        iconData: FontAwesomeIcons.female,
-                        label: 'Female',
-                      ),
+                  child: RepeatContainerCode(
+                    onPressed: () {
+                      setState(() {
+                        selectedGender = Gender.female;
+                      });
+                    },
+                    colour: selectedGender == Gender.female
+                        ? activecolor
+                        : deactivecolor,
+                    cardWidget: CardWidget(
+                      iconData: FontAwesomeIcons.female,
+                      label: 'Female',
                     ),
-
+                  ),
                 ),
               ],
             ),
           ),
           Expanded(
             child: RepeatContainerCode(
-                colour: Color.fromARGB(255, 3, 9, 40),
-                cardWidget:Column(
-                  children: <Widget>[
-                    Text('HIGHT',style: klabelstyle,),
-                  ],
-                ),
+              colour: Color.fromARGB(255, 3, 9, 40),
+              cardWidget: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text('HIGHT', style: klabelstyle),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        sliderHight.toString(),
+                        style: kNumberStyle,
+                      ),
+                      Text('cm', style: klabelstyle),
+                      
+                    ],
+                  ),
+                  Slider(
+                    value: sliderHight.toDouble(),
+                    min: 120.0,
+                    max: 220.0,
+                    activeColor: Color(0xFFEB1555),
+                    inactiveColor: Color(0xFF8D8E98),
+                    onChanged: (double newValue) {
+                      setState(() {
+                        sliderHight = newValue.round();
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           Expanded(
@@ -104,7 +120,7 @@ class _InputPageState extends State<InputPage> {
                 Expanded(
                   child: RepeatContainerCode(
                     colour: Color.fromARGB(255, 3, 9, 40),
-                      cardWidget: Column(),
+                    cardWidget: Column(),
                   ),
                 ),
               ],
