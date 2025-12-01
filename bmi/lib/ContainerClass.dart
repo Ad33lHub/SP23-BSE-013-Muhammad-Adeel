@@ -12,9 +12,9 @@ class RepeatContainerCode extends StatelessWidget {
     required this.colour,
     Widget? cardWidget,
     this.onPressed,
-    this.padding = const EdgeInsets.all(15.0),
-    this.margin = const EdgeInsets.all(7.0), this.child,
-  }) : cardWidget = cardWidget ?? const SizedBox.shrink();
+    this.padding = const EdgeInsets.all(4.0),
+    this.margin = const EdgeInsets.all(2.0), this.child,
+  }) : cardWidget = cardWidget ?? Container();
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +27,8 @@ class RepeatContainerCode extends StatelessWidget {
           color: colour,
           borderRadius: BorderRadius.circular(10.0),
         ),
-        child: Padding(
-          padding: padding,
-          child: cardWidget,
-        ),
+        padding: padding,
+        child: cardWidget,
       ),
     );
   }

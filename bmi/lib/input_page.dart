@@ -43,6 +43,7 @@ class _InputPageState extends State<InputPage> {
               children: <Widget>[
                 Expanded(
                   child: RepeatContainerCode(
+                    padding: EdgeInsets.all(30.0),
                     onPressed: () {
                       setState(() {
                         selectedGender = Gender.male;
@@ -59,6 +60,7 @@ class _InputPageState extends State<InputPage> {
                 ),
                 Expanded(
                   child: RepeatContainerCode(
+                    padding: EdgeInsets.all(30.0),
                     onPressed: () {
                       setState(() {
                         selectedGender = Gender.female;
@@ -91,9 +93,9 @@ class _InputPageState extends State<InputPage> {
                         style: kNumberStyle,
                       ),
                       Text('cm', style: klabelstyle),
-                      
                     ],
                   ),
+
                   Slider(
                     value: sliderHight.toDouble(),
                     min: 120.0,
@@ -124,6 +126,28 @@ class _InputPageState extends State<InputPage> {
                           sliderWeight.toString(),
                           style: kNumberStyle,
                         ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            RoundIcon(
+                              iconData: FontAwesomeIcons.minus,
+                              onPress: () {
+                                setState(() {
+                                  sliderWeight--;
+                                });
+                              },
+                            ),
+                            SizedBox(width: 10.0),
+                            RoundIcon(
+                              iconData: FontAwesomeIcons.plus,
+                              onPress: () {
+                                setState(() {
+                                  sliderWeight++;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -131,14 +155,72 @@ class _InputPageState extends State<InputPage> {
                 Expanded(
                   child: RepeatContainerCode(
                     colour: Color.fromARGB(255, 3, 9, 40),
-                    cardWidget: Column(),
+                    cardWidget: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text('AGE', style: klabelstyle),
+                        Text(
+                          sliderAge.toString(),
+                          style: kNumberStyle,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            RoundIcon(
+                              iconData: FontAwesomeIcons.minus,
+                              onPress: () {
+                                setState(() {
+                                  sliderAge--;
+                                });
+                              },
+                            ),
+                            SizedBox(width: 10.0),
+                            RoundIcon(
+                              iconData: FontAwesomeIcons.plus,
+                              onPress: () {
+                                setState(() {
+                                  sliderAge++;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
           ),
+          Container(
+            color: Color(0xFFEB1555),
+            margin: EdgeInsets.only(top: 10.0),
+            width: double.infinity,
+            height: 60.0,
+          ),
         ],
       ),
+    );
+  }
+}
+
+class RoundIcon extends StatelessWidget {
+  RoundIcon({required this.iconData, required this.onPress});
+  final IconData iconData;
+  final Function() onPress;
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      child: Icon(iconData),
+      onPressed: onPress,
+      elevation: 6.0,
+      constraints: BoxConstraints.tightFor(
+        width: 56.0,
+        height: 56.0,
+      ),
+      shape: CircleBorder(),
+      fillColor: Color(0xFF4C4F5E),
     );
   }
 }
