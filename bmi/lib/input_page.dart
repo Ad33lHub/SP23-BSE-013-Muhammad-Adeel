@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'ContainerClass.dart';
 import 'ResultFile.dart';
 import 'icontext.dart';
+import 'calculateFile.dart';
 
 // ignore: use_key_in_widget_constructors
 class InputPage extends StatefulWidget {
@@ -195,9 +196,14 @@ class _InputPageState extends State<InputPage> {
           ),
           GestureDetector(
             onTap: () {
+              CalculatorBrain calc = CalculatorBrain(height: sliderHight, weight: sliderWeight);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ResultScreen()),
+                MaterialPageRoute(builder: (context) => ResultScreen(
+                  bmiResult: calc.calculateBMI(),
+                  resultText: calc.getResult(),
+                  interpretation: calc.getInterpretation(),
+                )),
               );
             },
             child: Container(
