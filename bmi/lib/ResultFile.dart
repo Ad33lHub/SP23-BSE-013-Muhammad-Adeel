@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:bmi/ConstantFile.dart';
+
+import 'ContainerClass.dart';
+import 'input_page.dart';
 
 class ResultScreen extends StatelessWidget {
   const ResultScreen({super.key});
@@ -9,7 +13,64 @@ class ResultScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('BMI Calculator'),
       ),
-      body: Text('BMI data'),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              child: Center(
+                child: Text(
+                  'Your Result',
+                  style: KTittleStyleS2,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 5,
+            child: RepeatContainerCode(
+              colour :activecolor,
+              cardWidget: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    'Normal',
+                    style: klabelstyle,
+                  ),
+                  Text(
+                    '18.5',
+                    style: KNormalNumberStyle,
+                  ),
+                  Text(
+                    'BMI is low you should have to work more!',
+                    textAlign: TextAlign.center,
+                    style: klabelstyle,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => InputPage()),
+                );
+              },
+              child: Container(
+                child: Center(child: Text('RE-CALCULATOR' , style: KLargeButtonStyle)),
+                color: Color(0xFFEB1555),
+                margin: EdgeInsets.only(top: 10.0),
+                width: double.infinity,
+                height: 60.0,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

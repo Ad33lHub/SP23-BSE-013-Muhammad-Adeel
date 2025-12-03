@@ -16,3 +16,12 @@ const KLargeButtonStyle = TextStyle(
   fontSize: 20.0,
   fontWeight: FontWeight.bold,
 );
+
+const KTittleStyleS2 = TextStyle(
+  fontSize: 40.0,
+  fontWeight: FontWeight.bold,
+);
+const KNormalNumberStyle = TextStyle(
+  fontSize: 50.0,
+  fontWeight: FontWeight.w900,
+);
