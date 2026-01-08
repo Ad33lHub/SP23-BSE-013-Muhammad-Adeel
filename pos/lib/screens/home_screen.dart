@@ -7,6 +7,7 @@ import 'products/products_screen.dart';
 import 'inventory/stock_in_screen.dart';
 import 'inventory/stock_out_screen.dart';
 import 'inventory/stock_history_screen.dart';
+import 'pos/pos_screen.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -160,6 +161,18 @@ class HomeScreen extends StatelessWidget {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                   children: [
+                    _buildMenuCard(
+                      context,
+                      title: 'POS',
+                      icon: Icons.point_of_sale,
+                      color: Colors.indigo,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const POSScreen()),
+                        );
+                      },
+                    ),
                     _buildMenuCard(
                       context,
                       title: 'Products',
