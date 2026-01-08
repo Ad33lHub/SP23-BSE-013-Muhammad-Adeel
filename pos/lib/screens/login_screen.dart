@@ -5,6 +5,7 @@ import '../widgets/custom_text_field.dart';
 import '../widgets/gradient_button.dart';
 import '../services/auth_service.dart';
 import 'signup_screen.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -73,8 +74,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           backgroundColor: AppTheme.success,
         ),
       );
-      // TODO: Navigate to home screen
-      // Navigator.pushReplacementNamed(context, '/home');
+      // Navigate to home screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
