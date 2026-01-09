@@ -3,10 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
 import '../../providers/cart_provider.dart';
 import '../../providers/customer_provider.dart';
 import '../../providers/ledger_provider.dart';
+import '../../providers/connectivity_provider.dart';
 import '../../services/sales_service.dart';
+import '../../services/database_helper.dart';
 import '../../models/sale.dart';
 import '../../models/cart_item.dart';
 import 'receipt_screen.dart';
@@ -33,6 +36,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Future<void> _completeSale() async {
     final cart = context.read<CartProvider>();
     final customer = context.read<CustomerProvider>().selectedCustomer;
+    final isOffline = context.read<ConnectivityProvider>().isOffline;
 
     // Validate payment
     if (_selectedMethod == PaymentMethod.cash) {
@@ -46,8 +50,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         );
         return;
       }
-    } else if (_selectedMethod == PaymentMethod.credit) {
-      // Credit payment requires customer selection
+    } else if (_selectedMethod == PaymentMethod.credit && !isOffline) {
+      // Offline credit sales are restricted for safety
       if (customer == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -62,8 +66,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     setState(() => _isProcessing = true);
 
     try {
-      // Generate sale number
-      final saleNumber = await _salesService.generateSaleNumber();
+      // Generate sale number (use timestamp if offline)
+      final saleNumber = isOffline
+          ? 'OFF-${DateTime.now().millisecondsSinceEpoch}'
+          : await _salesService.generateSaleNumber();
 
       // Calculate change
       final amountReceived = _selectedMethod == PaymentMethod.cash
@@ -73,7 +79,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       // Create sale
       final sale = Sale(
-        id: '',
+        id: isOffline ? 'temp_${DateTime.now().millisecondsSinceEpoch}' : '',
         saleNumber: saleNumber,
         items: cart.items,
         subtotal: cart.subtotal,
@@ -89,20 +95,40 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         customerName: customer?.name,
         isPaid: _selectedMethod != PaymentMethod.credit,
         createdAt: DateTime.now(),
-        createdBy: FirebaseAuth.instance.currentUser?.uid ?? '',
+        createdBy: FirebaseAuth.instance.currentUser?.uid ?? 'offline_user',
       );
 
-      // Complete sale (saves to Firestore and updates stock)
-      await _salesService.completeSale(sale);
-
-      // If credit payment, create ledger debit entry
-      if (_selectedMethod == PaymentMethod.credit && customer != null) {
-        await context.read<LedgerProvider>().createCreditSale(
-          customerId: customer.id,
-          customerName: customer.name,
-          amount: cart.total,
-          saleId: saleNumber,
+      if (isOffline) {
+        // SAVE OFFLINE
+        final saleMap = sale.toMap();
+        saleMap['items'] = cart.items.map((item) => item.toMap()).toList();
+        
+        await DatabaseHelper.instance.insertOfflineSale(
+          sale.id,
+          jsonEncode(saleMap),
         );
+        
+        if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Offline: Sale saved. Will sync when online.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      } else {
+        // ONLINE
+        await _salesService.completeSale(sale);
+
+        // If credit payment, create ledger debit entry
+        if (_selectedMethod == PaymentMethod.credit && customer != null) {
+          await context.read<LedgerProvider>().createCreditSale(
+            customerId: customer.id,
+            customerName: customer.name,
+            amount: cart.total,
+            saleId: saleNumber,
+          );
+        }
       }
 
       setState(() => _isProcessing = false);
@@ -298,33 +324,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
                                 ],
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: const TextStyle(color: Colors.white, fontSize: 20),
                                 decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                                   prefixText: '\$ ',
-                                  prefixStyle: const TextStyle(
-                                    color: Colors.green,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  prefixStyle: const TextStyle(color: Colors.green, fontSize: 20),
                                   hintText: '0.00',
                                   hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-                                  border: InputBorder.none,
-                                  contentPadding: const EdgeInsets.all(20),
                                 ),
-                                onChanged: (_) => setState(() {}),
                               ),
                             ),
                             const SizedBox(height: 16),
-
-                            // Change
                             if (_amountController.text.isNotEmpty) ...[
                               GlassmorphicContainer(
                                 width: double.infinity,
-                                height: 80,
+                                height: 60,
                                 borderRadius: 16,
                                 blur: 15,
                                 alignment: Alignment.center,
@@ -333,20 +348,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    Colors.blue.withOpacity(0.1),
-                                    Colors.blue.withOpacity(0.05),
+                                    Colors.black.withOpacity(0.3),
+                                    Colors.black.withOpacity(0.1),
                                   ],
                                 ),
                                 borderGradient: LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    Colors.blue.withOpacity(0.5),
-                                    Colors.blue.withOpacity(0.2),
+                                    Colors.white.withOpacity(0.2),
+                                    Colors.white.withOpacity(0.1),
                                   ],
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(20),
+                                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [

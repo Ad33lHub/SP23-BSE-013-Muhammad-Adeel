@@ -87,6 +87,28 @@ class Sale {
   }
 
   // Create from Firestore document
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'saleNumber': saleNumber,
+      'items': items.map((item) => item.toMap()).toList(),
+      'subtotal': subtotal,
+      'taxRate': taxRate,
+      'taxAmount': taxAmount,
+      'cartDiscount': cartDiscount,
+      'cartDiscountType': cartDiscountType.name,
+      'totalAmount': totalAmount,
+      'paymentMethod': paymentMethod.name,
+      'amountReceived': amountReceived,
+      'changeGiven': changeGiven,
+      'customerId': customerId,
+      'customerName': customerName,
+      'isPaid': isPaid,
+      'createdAt': createdAt.toIso8601String(),
+      'createdBy': createdBy,
+    };
+  }
+
   factory Sale.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     

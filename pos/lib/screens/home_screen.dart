@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import '../providers/product_provider.dart';
+import '../providers/connectivity_provider.dart';
 import 'products/products_screen.dart';
 import 'inventory/stock_in_screen.dart';
 import 'inventory/stock_out_screen.dart';
@@ -11,6 +12,7 @@ import 'pos/pos_screen.dart';
 import 'customers/customers_screen.dart';
 import 'ledger/ledger_screen.dart';
 import 'reports/reports_screen.dart';
+import 'settings/settings_screen.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -70,9 +72,60 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.logout, color: Colors.white),
-                      onPressed: () => _signOut(context),
+                    Row(
+                      children: [
+                        // Online/Offline Indicator
+                        Consumer<ConnectivityProvider>(
+                          builder: (context, connectivity, _) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: (connectivity.isOnline ? Colors.green : Colors.orange).withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: connectivity.isOnline ? Colors.green : Colors.orange,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    connectivity.isOnline ? Icons.wifi : Icons.wifi_off,
+                                    color: connectivity.isOnline ? Colors.green : Colors.orange,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    connectivity.isOnline ? 'Online' : 'Offline',
+                                    style: TextStyle(
+                                      color: connectivity.isOnline ? Colors.green : Colors.orange,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        // Settings Button
+                        IconButton(
+                          icon: const Icon(Icons.settings, color: Colors.white),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                            );
+                          },
+                        ),
+                        // Logout Button
+                        IconButton(
+                          icon: const Icon(Icons.logout, color: Colors.white),
+                          onPressed: () => _signOut(context),
+                        ),
+                      ],
                     ),
                   ],
                 ),

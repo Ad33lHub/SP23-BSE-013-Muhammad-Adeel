@@ -29,11 +29,11 @@ class ReportsService {
         
         final items = data['items'] as List<dynamic>? ?? [];
         for (final item in items) {
-          final qty = item['quantity'] ?? 0;
-          totalItems += qty;
+          final qty = (item['quantity'] ?? 0) as num;
+          totalItems += qty.toInt();
           
           final productName = item['productName'] ?? 'Unknown';
-          itemCounts[productName] = (itemCounts[productName] ?? 0) + qty;
+          itemCounts[productName] = (itemCounts[productName] ?? 0) + qty.toInt();
         }
       }
 
@@ -96,7 +96,8 @@ class ReportsService {
 
         final items = data['items'] as List<dynamic>? ?? [];
         for (final item in items) {
-          totalItems += item['quantity'] ?? 0;
+          final qty = item['quantity'];
+          totalItems += (qty is num ? qty.toInt() : 0);
         }
       }
 
@@ -147,7 +148,8 @@ class ReportsService {
 
         final items = data['items'] as List<dynamic>? ?? [];
         for (final item in items) {
-          totalItems += item['quantity'] ?? 0;
+          final qty = item['quantity'];
+          totalItems += (qty is num ? qty.toInt() : 0);
         }
       }
 
@@ -196,7 +198,8 @@ class ReportsService {
 
       for (final doc in snapshot.docs) {
         final data = doc.data();
-        final quantity = data['quantity'] ?? 0;
+        final quantityDynamic = data['quantity'];
+        final quantity = (quantityDynamic is num ? quantityDynamic.toInt() : 0);
         final costPrice = (data['costPrice'] ?? 0).toDouble();
         final category = data['category'] ?? 'Uncategorized';
 
