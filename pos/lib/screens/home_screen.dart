@@ -10,6 +10,7 @@ import 'inventory/stock_history_screen.dart';
 import 'pos/pos_screen.dart';
 import 'customers/customers_screen.dart';
 import 'ledger/ledger_screen.dart';
+import 'reports/reports_screen.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -208,6 +209,18 @@ class HomeScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (_) => const LedgerScreen()),
+                        );
+                      },
+                    ),
+                    _buildMenuCard(
+                      context,
+                      title: 'Reports',
+                      icon: Icons.bar_chart,
+                      color: Colors.pink,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const ReportsScreen()),
                         );
                       },
                     ),
