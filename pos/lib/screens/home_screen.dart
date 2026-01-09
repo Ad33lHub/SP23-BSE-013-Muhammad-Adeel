@@ -8,6 +8,8 @@ import 'inventory/stock_in_screen.dart';
 import 'inventory/stock_out_screen.dart';
 import 'inventory/stock_history_screen.dart';
 import 'pos/pos_screen.dart';
+import 'customers/customers_screen.dart';
+import 'ledger/ledger_screen.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -156,7 +158,7 @@ class HomeScreen extends StatelessWidget {
               // Menu Grid
               Expanded(
                 child: GridView.count(
-                  crossAxisCount: 2,
+                  crossAxisCount: 3,
                   padding: const EdgeInsets.all(20),
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
@@ -182,6 +184,30 @@ class HomeScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (_) => const ProductsScreen()),
+                        );
+                      },
+                    ),
+                    _buildMenuCard(
+                      context,
+                      title: 'Customers',
+                      icon: Icons.people,
+                      color: Colors.teal,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const CustomersScreen()),
+                        );
+                      },
+                    ),
+                    _buildMenuCard(
+                      context,
+                      title: 'Ledger',
+                      icon: Icons.account_balance_wallet,
+                      color: Colors.amber,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LedgerScreen()),
                         );
                       },
                     ),

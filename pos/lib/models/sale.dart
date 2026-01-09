@@ -4,6 +4,7 @@ import 'cart_item.dart';
 enum PaymentMethod {
   cash,
   card,
+  credit, // Credit sale (unpaid)
 }
 
 class Sale {
@@ -19,6 +20,9 @@ class Sale {
   final PaymentMethod paymentMethod;
   final double amountReceived;
   final double changeGiven;
+  final String? customerId; // Customer reference
+  final String? customerName; // Customer name
+  final bool isPaid; // Payment status (false for credit sales)
   final DateTime createdAt;
   final String createdBy;
 
@@ -35,6 +39,9 @@ class Sale {
     required this.paymentMethod,
     required this.amountReceived,
     required this.changeGiven,
+    this.customerId,
+    this.customerName,
+    this.isPaid = true,
     required this.createdAt,
     required this.createdBy,
   });
@@ -71,6 +78,9 @@ class Sale {
       'paymentMethod': paymentMethod.name,
       'amountReceived': amountReceived,
       'changeGiven': changeGiven,
+      'customerId': customerId,
+      'customerName': customerName,
+      'isPaid': isPaid,
       'createdAt': Timestamp.fromDate(createdAt),
       'createdBy': createdBy,
     };
@@ -79,6 +89,13 @@ class Sale {
   // Create from Firestore document
   factory Sale.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    
+    PaymentMethod method = PaymentMethod.cash;
+    if (data['paymentMethod'] == 'card') {
+      method = PaymentMethod.card;
+    } else if (data['paymentMethod'] == 'credit') {
+      method = PaymentMethod.credit;
+    }
     
     return Sale(
       id: doc.id,
@@ -92,11 +109,12 @@ class Sale {
           ? DiscountType.fixed 
           : DiscountType.percentage,
       totalAmount: (data['totalAmount'] ?? 0).toDouble(),
-      paymentMethod: data['paymentMethod'] == 'card' 
-          ? PaymentMethod.card 
-          : PaymentMethod.cash,
+      paymentMethod: method,
       amountReceived: (data['amountReceived'] ?? 0).toDouble(),
       changeGiven: (data['changeGiven'] ?? 0).toDouble(),
+      customerId: data['customerId'],
+      customerName: data['customerName'],
+      isPaid: data['isPaid'] ?? true,
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       createdBy: data['createdBy'] ?? '',
     );
@@ -116,6 +134,9 @@ class Sale {
     PaymentMethod? paymentMethod,
     double? amountReceived,
     double? changeGiven,
+    String? customerId,
+    String? customerName,
+    bool? isPaid,
     DateTime? createdAt,
     String? createdBy,
   }) {
@@ -132,6 +153,9 @@ class Sale {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       amountReceived: amountReceived ?? this.amountReceived,
       changeGiven: changeGiven ?? this.changeGiven,
+      customerId: customerId ?? this.customerId,
+      customerName: customerName ?? this.customerName,
+      isPaid: isPaid ?? this.isPaid,
       createdAt: createdAt ?? this.createdAt,
       createdBy: createdBy ?? this.createdBy,
     );

@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/customer_provider.dart';
+import '../../providers/ledger_provider.dart';
 import '../../services/sales_service.dart';
 import '../../models/sale.dart';
 import '../../models/cart_item.dart';
@@ -30,13 +32,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _completeSale() async {
     final cart = context.read<CartProvider>();
+    final customer = context.read<CustomerProvider>().selectedCustomer;
 
+    // Validate payment
     if (_selectedMethod == PaymentMethod.cash) {
       final amountReceived = double.tryParse(_amountController.text) ?? 0;
       if (amountReceived < cart.total) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Insufficient amount received'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    } else if (_selectedMethod == PaymentMethod.credit) {
+      // Credit payment requires customer selection
+      if (customer == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select a customer for credit payment'),
             backgroundColor: Colors.red,
           ),
         );
@@ -70,12 +85,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         paymentMethod: _selectedMethod,
         amountReceived: amountReceived,
         changeGiven: change,
+        customerId: customer?.id,
+        customerName: customer?.name,
+        isPaid: _selectedMethod != PaymentMethod.credit,
         createdAt: DateTime.now(),
         createdBy: FirebaseAuth.instance.currentUser?.uid ?? '',
       );
 
       // Complete sale (saves to Firestore and updates stock)
       await _salesService.completeSale(sale);
+
+      // If credit payment, create ledger debit entry
+      if (_selectedMethod == PaymentMethod.credit && customer != null) {
+        await context.read<LedgerProvider>().createCreditSale(
+          customerId: customer.id,
+          customerName: customer.name,
+          amount: cart.total,
+          saleId: saleNumber,
+        );
+      }
 
       setState(() => _isProcessing = false);
 
@@ -216,6 +244,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   PaymentMethod.card,
                                   Icons.credit_card,
                                   'Card',
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildPaymentMethodCard(
+                                  PaymentMethod.credit,
+                                  Icons.person,
+                                  'Credit',
                                 ),
                               ),
                             ],

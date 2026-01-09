@@ -6,6 +6,8 @@ import 'screens/splash_screen.dart';
 import 'providers/product_provider.dart';
 import 'providers/inventory_provider.dart';
 import 'providers/cart_provider.dart';
+import 'providers/customer_provider.dart';
+import 'providers/ledger_provider.dart';
 import 'config/theme.dart';
 
 void main() async {
@@ -26,6 +28,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => InventoryProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => CustomerProvider()),
+        ChangeNotifierProvider(create: (_) => LedgerProvider()),
       ],
       child: MaterialApp(
         title: 'Smart POS',
